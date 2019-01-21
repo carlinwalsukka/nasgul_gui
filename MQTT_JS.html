@@ -1,0 +1,77 @@
+<div id="fan" class="fan"></div>
+<div><input type="button" id="STOP" value="STOP"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script>
+<style>
+
+.fan {
+    display: block;
+    width: 200px; 
+    height: 200px;
+    margin:0 auto;
+    background-image: url("QA_FAN.gif");
+	background-repeat: no-repeat;
+    background-size: 100%;
+	animation-play-state: running;
+    animation: fan-gif steps(3) 1s infinite both;
+}
+.STOP {
+    background-image: url("QA_FAN_STATIC.png");
+}
+div {
+  width:100px;
+  margin:0 auto;
+  text-align:center;
+}
+
+@keyframes fan-gif {
+  0% {
+    background-position: 0%;
+  }
+  100% {
+    background-position: 100%;
+  }
+}
+
+</style>
+<script>
+var image = document.getElementById("fan"), 
+    button = document.getElementById("STOP");
+    
+if (image.classList && image && button) {
+    button.onclick = function() {
+        if (this.value == 'STOP') {
+			var clientID = "ID-" + Math.round(Math.random() * 1000);
+			var client = new Paho.MQTT.Client("test.mosquitto.org", 8080, clientID);
+
+			client.connect({onSuccess:onConnect});
+
+		function onConnect() {
+			console.log("connected");
+			var message = new Paho.MQTT.Message("0");
+			message.destinationName = "deriskproto/fan1";
+			client.send(message);
+		}
+			
+            image.classList.add('STOP');
+            this.value = 'RUN';
+        } else {
+			var clientID = "ID-" + Math.round(Math.random() * 1000);
+			var client = new Paho.MQTT.Client("test.mosquitto.org", 8080, clientID);
+
+			client.connect({onSuccess:onConnect});
+
+		function onConnect() {
+			console.log("connected");
+			var message = new Paho.MQTT.Message("1");
+			message.destinationName = "deriskproto/fan1";
+			client.send(message);
+		}
+			
+            
+            image.classList.remove('STOP');
+            this.value = 'STOP';
+        }
+    };
+}
+
+</script>
